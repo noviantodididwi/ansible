@@ -27,13 +27,13 @@
 
     - name: make sure that redis directory exists
       file: path=/redis state=directory mode=0755 group=redisgrp owner=redis
-	
+
     - name: make sure that configuration directory exists
       file: path=/redis/conf state=directory mode=0755 group=redisgrp owner=redis
 
     - name: make sure that data directory exists
       file: path=/redis/data state=directory mode=0755 group=redisgrp owner=redis
-	
+
     - name: make sure that log directory exists
       file: path=/redis/log state=directory mode=0755 group=redisgrp owner=redis
 
@@ -45,7 +45,7 @@
 
     - name: copy redis.conf file
       copy: src=templates/redis.conf dest=/redis/conf/redis.conf group=redisgrp owner=redis
-	
+
     - name: installing redis binaries
       command: cp /tmp/redis-stable/src/{{ item }} /redis/src/
       with_items: 
@@ -53,7 +53,7 @@
         - redis-cli
         - redis-check-aof
         - redis-check-dump
-	  
+
     - name: cleaning up build files
       command: rm -rf /tmp/{{ item }}
       with_items:
