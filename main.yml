@@ -8,7 +8,7 @@
     - vars.yml
 
   - name: install the 'Development tools' package group
-    yum: name="@Development tools" state=present
+    yum: name="@Development tools" state=latest
 
   - name: download latest stable redis
     get_url: url=http://download.redis.io/redis-stable.tar.gz dest=/tmp/redis-stable.tar.gz
