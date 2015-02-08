@@ -53,15 +53,14 @@ Todo
 Directory structure should look like
 ----
 
-??? ansible.cfg
-??? CHANGELOG.md
-??? hosts
-??? main.yml
-??? README.md
-??? redis-version.yml
-??? templates
-?�� ??? redis.conf
-?�� ??? redis-daemon
-?�� ??? redis.log
-??? vars.yml
-
+├── ansible.cfg
+├── CHANGELOG.md
+├── hosts
+├── main.yml
+├── README.md
+├── redis-version.yml
+├── templates
+│   ├── redis.conf
+│   ├── redis-daemon
+│   └── redis.log
+└── vars.yml
