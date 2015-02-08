@@ -2,53 +2,63 @@
 
 ---
 - hosts: development
-  sudo: yes
 
   vars_files:
     - vars.yml
+    - redis-version.yml
 
-    - name: install the 'Development tools' package group
-      yum: name="@Development tools" state=latest
-
+  tasks:
+    - name: install the Development tools package group
+      yum: name="@Development tools" state=present
+  
     - name: download latest stable redis
-      get_url: url=http://download.redis.io/redis-stable.tar.gz dest=/tmp/redis-stable.tar.gz
-
+      get_url: url=http://download.redis.io/releases/redis-{{version}}.tar.gz dest=/tmp/redis-{{version}}.tar.gz mode=0440
+  
     - name: untar redis
-      command: tar zxf /tmp/redis-stable.tar.gz -C /tmp
-
+      command: tar zxf /tmp/redis-{{version}}.tar.gz -C /tmp
+  
     - name: build redis
-      command: make -C /tmp/redis-stable
-
+      command: make -C /tmp/redis-{{version}}
+  
     - name: create redis group
       group: name=redisgrp state=present system=yes
-
+  
     - name: create redis user
       user: name=redis group=redisgrp createhome=no shell=/bin/false system=yes state=present
-
-    - name: make sure that redis directory exists
-      file: path=/redis state=directory mode=0755 group=redisgrp owner=redis
-
+  
+    - name: make sure that redis directory exists e.g /redis/<version>/<project-name>
+      file: path=/redis/{{version}}/scoopcor state=directory mode=0755 group=redisgrp owner=redis
+  
     - name: make sure that configuration directory exists
-      file: path=/redis/conf state=directory mode=0755 group=redisgrp owner=redis
-
+      file: path=/redis/{{version}}/scoopcor/conf state=directory mode=0755 group=redisgrp owner=redis
+      
+    - name: make sure that run directory exists
+      file: path=/redis/{{version}}/scoopcor/run state=directory mode=0755 group=redisgrp owner=redis
+      
+    - name: make sure that socket directory exists
+      file: path=/redis/{{version}}/scoopcor/socket state=directory mode=0755 group=redisgrp owner=redis
+  
     - name: make sure that data directory exists
-      file: path=/redis/data state=directory mode=0755 group=redisgrp owner=redis
-
+      file: path=/redis/{{version}}/scoopcor/data state=directory mode=0755 group=redisgrp owner=redis
+  
     - name: make sure that log directory exists
-      file: path=/redis/log state=directory mode=0755 group=redisgrp owner=redis
-
+      file: path=/redis/{{version}}/scoopcor/log state=directory mode=0755 group=redisgrp owner=redis
+    
+    - name: make sure that src directory exists
+      file: path=/redis/{{version}}/scoopcor/src state=directory mode=0755 group=redisgrp owner=redis
+  
     - name: make sure redis.log file exists
-      copy: src=templates/redis.log dest=/redis/log/redis.log owner=redis group=redisgrp mode=0644
+      copy: src=templates/redis.log dest=/redis/{{version}}/scoopcor/log/redis.log owner=redis group=redisgrp mode=0644
 
     - name: copy daemon script
       copy: src=templates/redis-daemon dest=/etc/init.d/redis mode=0755
 
     - name: copy redis.conf file
-      copy: src=templates/redis.conf dest=/redis/conf/redis.conf group=redisgrp owner=redis
+      copy: src=templates/redis.conf dest=/redis/{{version}}/scoopcor/conf/redis.conf group=redisgrp owner=redis
 
     - name: installing redis binaries
-      command: cp /tmp/redis-stable/src/{{ item }} /redis/src/
-      with_items: 
+      command: cp /tmp/redis-{{version}}/src/{{ item }} /redis/{{version}}/scoopcor/src/
+      with_items:
         - redis-server
         - redis-cli
         - redis-check-aof
@@ -57,8 +67,8 @@
     - name: cleaning up build files
       command: rm -rf /tmp/{{ item }}
       with_items:
-        - redis-stable
-        - redis-stable.tar.gz
+        - redis-{{version}}
+        - redis-{{version}}.tar.gz
 
-    - name: ensure redis service is restarted
-      service: name=redis state=restarted
+    - name: ensure redis service is started
+      service: name=redis state=started
